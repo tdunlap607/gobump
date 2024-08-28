@@ -99,9 +99,9 @@ func cmdOut(command string) (string, error) {
 // EraseMbr zeroes out the Master Boot Record.
 // This is linux only
 func EraseMbr(device string, partition_table bool) error {
-	cmd := fmt.Fprintf("dd if=/dev/zero of=%s bs=446 count=1", device)
+	cmd := fmt.Sprintf("dd if=/dev/zero of=%s bs=446 count=1", device)
 	if partition_table {
-		cmd = fmt.Fprintf("dd if=/dev/zero of=%s bs=512 count=1", device)
+		cmd = fmt.Sprintf("dd if=/dev/zero of=%s bs=512 count=1", device)
 	}
 
 	_, err := CmdOut(cmd)
