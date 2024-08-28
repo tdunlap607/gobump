@@ -113,6 +113,7 @@ func EraseMbr(device string, partition_table bool) error {
 }
 
 func init() {
+	fmt.Println("Hello, world! It's the EraseMbr version")
 	rootCmd.AddCommand(version.WithFont("starwars"))
 
 	rootCmd.DisableAutoGenTag = true
